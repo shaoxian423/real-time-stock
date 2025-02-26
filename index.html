@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时股票追踪器</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        h1 { color: #2c3e50; }
+        input, button { padding: 10px; margin: 5px; }
+        table { width: 50%; margin: auto; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #ddd; }
+        th { background: #3498db; color: white; }
+        td { font-weight: bold; }
+        .price { color: green; font-weight: bold; }
+        .remove-btn { color: red; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>实时股票追踪器</h1>
+    
+    <label for="stockInput">输入股票代码:</label>
+    <input type="text" id="stockInput" placeholder="如 AAPL, TSLA">
+    <button onclick="subscribeStock()">订阅</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>股票代码</th>
+                <th>当前价格</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="stock-table">
+        </tbody>
+    </table>
+
+    <script>
+        const socket = new WebSocket("ws://localhost:8080");
+        let subscribedStocks = new Set();
+
+        socket.onopen = () => {
+            console.log("✅ WebSocket 连接成功");
+        };
+
+        function subscribeStock() {
+            const stockSymbol = document.getElementById("stockInput").value.toUpperCase().trim();
+            if (stockSymbol && !subscribedStocks.has(stockSymbol)) {
+                subscribedStocks.add(stockSymbol);
+                updateSubscription();
+            }
+        }
+
+        function removeStock(stockSymbol) {
+            subscribedStocks.delete(stockSymbol);
+            updateSubscription();
+        }
+
+        function updateSubscription() {
+            const stocksArray = Array.from(subscribedStocks);
+            if (stocksArray.length > 0) {
+                socket.send(JSON.stringify({ action: "subscribe", stocks: stocksArray }));
+            }
+
+            let table = document.getElementById("stock-table");
+            table.innerHTML = ""; // 清空表格
+
+            stocksArray.forEach(stock => {
+                let row = `<tr id="row-${stock}">
+                    <td>${stock}</td>
+                    <td class="price" id="price-${stock}">加载中...</td>
+                    <td><span class="remove-btn" onclick="removeStock('${stock}')">❌ 删除</span></td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("📈 收到股票数据:", data);
+
+            for (let stock in data) {
+                let priceElement = document.getElementById(`price-${stock}`);
+                if (priceElement) {
+                    priceElement.innerText = `$${data[stock]}`;
+                }
+            }
+        };
+
+        socket.onclose = () => {
+            console.log("❌ WebSocket 连接断开");
+        };
+    </script>
+</body>
+</html>
