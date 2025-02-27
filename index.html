@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>实时股票追踪器</title>
+
+    <!-- 引入 Chart.js 和 Financial 插件 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
         h1 { color: #2c3e50; }
@@ -14,6 +20,7 @@
         td { font-weight: bold; }
         .price { color: green; font-weight: bold; }
         .remove-btn { color: red; cursor: pointer; font-weight: bold; }
+        canvas { max-width: 800px; margin: auto; }
     </style>
 </head>
 <body>
@@ -22,7 +29,8 @@
     <label for="stockInput">输入股票代码:</label>
     <input type="text" id="stockInput" placeholder="如 AAPL, TSLA">
     <button onclick="subscribeStock()">订阅</button>
-    
+    <button onclick="requestCandlestick()">查看K线图</button>
+
     <table>
         <thead>
             <tr>
@@ -31,12 +39,15 @@
                 <th>操作</th>
             </tr>
         </thead>
-        <tbody id="stock-table">
-        </tbody>
+        <tbody id="stock-table"></tbody>
     </table>
+
+    <h2>股票K线图</h2>
+    <canvas id="candlestickChart"></canvas>
 
     <script>
         const socket = new WebSocket("ws://localhost:8080");
+        let candlestickChart = null;
         let subscribedStocks = new Set();
 
         socket.onopen = () => {
@@ -49,11 +60,6 @@
                 subscribedStocks.add(stockSymbol);
                 updateSubscription();
             }
-        }
-
-        function removeStock(stockSymbol) {
-            subscribedStocks.delete(stockSymbol);
-            updateSubscription();
         }
 
         function updateSubscription() {
@@ -75,17 +81,89 @@
             });
         }
 
+        function requestCandlestick() {
+            const stockSymbol = document.getElementById("stockInput").value.toUpperCase().trim();
+            if (stockSymbol) {
+                socket.send(JSON.stringify({ action: "candlestick", symbol: stockSymbol, range: "1mo" }));
+            }
+        }
+
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("📈 收到股票数据:", data);
+            console.log("📈 收到数据:", data);
 
+            if (data.type === "realtime") {
+                updateStockPrices(data.data);
+            } else if (data.type === "candlestick") {
+                renderCandlestickChart(data.symbol, data.data);
+            }
+        };
+
+        function updateStockPrices(data) {
             for (let stock in data) {
                 let priceElement = document.getElementById(`price-${stock}`);
                 if (priceElement) {
                     priceElement.innerText = `$${data[stock]}`;
                 }
             }
-        };
+        }
+
+        function renderCandlestickChart(symbol, data) {
+    console.log(`📊 渲染 ${symbol} 的 K 线数据`, data);
+
+    if (!data || data.length === 0) {
+        console.error(`⚠️ ${symbol} K 线数据为空`);
+        alert("无法加载 K 线数据，请检查服务器！");
+        return;
+    }
+
+    const ctx = document.getElementById("candlestickChart").getContext("2d");
+
+    // ✅ **修正格式**
+    let formattedData = data.map(item => ({
+        x: new Date(item.date),  // ✅ **确保 X 轴是 Date**
+        o: item.open, 
+        h: item.high, 
+        l: item.low, 
+        c: item.close
+    }));
+
+    if (candlestickChart) {
+        candlestickChart.destroy();
+    }
+
+    candlestickChart = new Chart(ctx, {
+        type: 'candlestick',
+        data: {
+            datasets: [{
+                label: `${symbol} K 线数据`,
+                data: formattedData,  // ✅ **数据格式修正**
+                borderColor: 'black',
+                borderWidth: 1,
+                backgroundColor: {
+                    up: 'rgba(0, 200, 0, 0.8)',
+                    down: 'rgba(200, 0, 0, 0.8)',
+                    unchanged: 'rgba(100, 100, 100, 0.8)'
+                }
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    type: "time", 
+                    time: { unit: "day" }, 
+                    title: { display: true, text: '日期' } 
+                },
+                y: { 
+                    title: { display: true, text: '价格 (USD)' } 
+                }
+            },
+            plugins: { legend: { display: true, position: "top" } }
+        }
+    });
+}
 
         socket.onclose = () => {
             console.log("❌ WebSocket 连接断开");
