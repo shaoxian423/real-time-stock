@@ -78,6 +78,10 @@ $ node server.js
 ### 4️⃣ Open the Client Application
 - Open `index.html` in a browser.
 - You can also use **Live Server** (VS Code extension) to serve it at `http://127.0.0.1:5500/`.
+- or
+```sh
+$ npx http-server
+```
 
 ---
 
@@ -155,13 +159,13 @@ This project can serve as a **foundation for building advanced stock tracking ap
 ---
 
 ## License
-MIT License © 2025 Your Name
+MIT License © 2025 Shaoxian Duan
 
 ---
 
 ## Contact
 For any questions or improvements, feel free to reach out!
 
-✉️ Email: `your-email@example.com`
-🔗 GitHub: [Your GitHub Profile](https://github.com/your-username)
+✉️ Email: `duan0027@algonquinlive.com`
+🔗 GitHub: [My GitHub Profile](https://github.com/shaoxian423/real-time-stock)
 
