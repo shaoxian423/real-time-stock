@@ -104,7 +104,7 @@ $ node server.js
 ## Project Structure
 
 ![App Structure](Assign1.png)
-
+![VS code Structure](Assign2.png)
 ### 📌 Front-End (Client)
 - **index.html**: User interface with **input fields, buttons, stock table, and chart**.
 - **client.js**:
