@@ -1,75 +1,167 @@
-Real-Time Stock Tracker
+# Real-Time Stock Tracker
 
-Introduction
+## Introduction
+The **Real-Time Stock Tracker** is a web application that allows users to monitor stock prices in real time and visualize historical price data with candlestick charts. It was originally developed to demonstrate real-time data tracking using WebSockets and chart visualization.
 
-The Real-Time Stock Tracker is a web application that allows users to monitor stock prices in real time and visualize historical price data with candlestick charts. It was originally developed as a project to demonstrate real-time data tracking using WebSockets and chart visualization. With this tool, you can subscribe to live stock price updates, view a list of subscribed stocks with their latest prices, and display a stock’s price history in a candlestick (K-line) chart. The application fetches stock data from the Yahoo Finance API and provides an interactive front-end interface for ease of use.
+With this tool, you can:
+- Subscribe to live stock price updates
+- View a list of subscribed stocks with their latest prices
+- Display a stock’s price history in a **candlestick (K-line) chart**
 
-Features
-	•	Real-Time Price Updates: Subscribe to one or multiple stock symbols to fetch their current market prices. The app uses a WebSocket connection to retrieve the latest price for each subscribed stock and displays it in a dynamic table in the browser. Subscribed stocks are listed with their ticker symbol and current price, updating in real time whenever new data is received. Users can monitor several stocks concurrently in one view.
-	•	Candlestick Chart Visualization: View historical price data in a K-line (candlestick) chart format. For a selected stock, the application can display a candlestick chart showing the stock’s price movement over a recent period (by default, the past month). Each candlestick in the chart represents the open, high, low, and close prices of the stock for a given time interval (e.g., daily for one-month range). This helps users to visualize trends and volatility in the stock’s performance.
-	•	Subscription Management: Easily add or remove stocks from tracking. An input field is provided to enter stock ticker symbols (e.g. AAPL, TSLA), and a Subscribe button to start tracking that stock. Each tracked stock appears as a new row in the table with its current price. A red “X” remove button is displayed next to each stock entry—clicking this will remove the stock from the list if you no longer wish to track it. This allows users to manage their watchlist in real time.
-	•	WebSocket-Based Backend: The backend server uses WebSockets to maintain an active connection with the client. This enables instantaneous push delivery of stock prices and chart data. When a user subscribes to stocks, the server fetches the latest prices via the Yahoo Finance API and sends them to the client. The use of WebSockets means the client can receive updates as soon as they are available, without needing to continuously refresh or poll for data.
-	•	Yahoo Finance Integration: The application leverages Yahoo Finance (through the yahoo-finance2 library) to retrieve up-to-date market information. For any given stock symbol, the server fetches real-time quote data (such as the current trading price) and historical data for charting. This integration ensures that the price information and candlestick charts reflect actual market data. (An active internet connection is required for the app to query the Yahoo Finance API.)
+The application fetches stock data from the **Yahoo Finance API** and provides an interactive front-end interface for ease of use.
 
-Technologies Used
-	•	Node.js and WebSocket (ws) – The backend is built with Node.js and uses the ws library to handle WebSocket connections. This allows the server to send real-time updates to the client browser whenever new stock data is fetched. The server script (server.js) manages subscription requests and queries the Yahoo Finance API for data.
-	•	Yahoo Finance API (via yahoo-finance2) – The server relies on the yahoo-finance2 Node.js library to request stock information. This library provides access to Yahoo Finance’s data endpoints for current prices (quotes) and historical price data (for candlestick charts). It simplifies the process of fetching financial data, handling API calls and data formatting.
-	•	HTML/CSS/JavaScript – The front-end is a simple web page (index.html and a corresponding client script) that provides the user interface. HTML is used for structure (input field, buttons, table for stock quotes, canvas for chart), CSS for basic styling of the layout, and JavaScript for client-side logic. The client JavaScript opens a WebSocket to the server, sends user actions (subscribe requests, candlestick data requests), and updates the UI with incoming data.
-	•	Chart.js – Chart.js (with the Chart.js Date-FNS adapter) is used on the front-end to render the candlestick chart. Chart.js is a popular JavaScript charting library. In this application, it is used to draw financial candlestick charts of stock prices. The chart is drawn on an HTML5 <canvas> element. When the server sends historical price data, the client formats it and uses Chart.js to plot open-high-low-close candlesticks for the selected stock over the time range.
+---
 
-Installation and Setup
+## Features
 
-To run the Real-Time Stock Tracker locally, follow these steps:
-	1.	Clone or Download the Project: Obtain the project files and ensure the directory structure is intact. The key components are the front-end files (index.html, client.js) and the back-end server (server.js). If you have received this as a ZIP or via version control, extract or clone it to your local machine.
-	2.	Install Dependencies: Make sure you have Node.js installed on your system. Navigate to the project directory in a terminal/command prompt and run npm install to install required dependencies. This will install the ws WebSocket library (and if not already included, you may need to install the Yahoo Finance API library by running npm install yahoo-finance2). These packages are necessary for the server to function properly.
-	3.	Start the WebSocket Server: In the project directory, run the command: node server.js. This will launch the Node.js server on port 8080. You should see a console log message indicating that a new WebSocket connection has been established once a client connects. The server will be listening for incoming WebSocket connections and ready to provide stock data.
-	4.	Open the Client Application: Open the index.html file in your web browser to load the front-end interface. You can do this by either double-clicking the HTML file or serving it via a local web server. Tip: If you have Visual Studio Code, you can use the Live Server extension to serve index.html (which typically opens it at a local address like http://127.0.0.1:5500/index.html). This isn’t strictly required, as the page can also be opened directly; it simply needs to connect to the WebSocket at ws://localhost:8080 which is handled in the JavaScript. Once the page is open in your browser, the front-end will attempt to connect to the WebSocket server automatically.
+### ✅ Real-Time Price Updates
+- Subscribe to one or multiple stock symbols to fetch their **current market prices**.
+- Uses **WebSocket connection** to retrieve the latest price for each subscribed stock.
+- Prices update **dynamically** in a table without refreshing the page.
+- Users can monitor multiple stocks simultaneously.
 
-Usage
+### 📊 Candlestick Chart Visualization
+- View **historical price data** in a **K-line (candlestick) chart** format.
+- Each candlestick represents **open, high, low, and close** prices over a time period (e.g., **daily for the past month**).
+- Helps users **analyze trends and stock volatility**.
 
-Once the server is running and the front-end page is open, you can begin using the Real-Time Stock Tracker to subscribe to stock updates and view charts.
+### 🔄 Subscription Management
+- **Easily add or remove stocks** from tracking.
+- Enter stock ticker symbols (e.g., `AAPL`, `TSLA`) and **click Subscribe**.
+- Tracked stocks appear in a table with their **current price**.
+- Click the **red "X" button** to remove stocks from tracking in real-time.
 
-1. Subscribing to Stock Quotes: At the top of the page, you will find an input field labeled “输入股票代码” (which means “Enter stock code:”) and a Subscribe button (“订阅” in the interface). To track a stock, click the input box and type the stock’s ticker symbol (for example, TSLA for Tesla). Then click the Subscribe button. The application will send a subscription request for that stock symbol over the WebSocket to the server.
+### ⚡ WebSocket-Based Backend
+- Uses **WebSockets** to maintain an active connection with the client.
+- Enables **instant price updates** without page refresh.
+- Fetches stock prices via the **Yahoo Finance API** and pushes data to the front end.
 
-After subscribing to a stock (e.g., TSLA), the stock’s symbol and current price appear in the table of tracked stocks. In this screenshot, the user has subscribed to “TSLA”, and the table displays the symbol TSLA with its latest price fetched from Yahoo Finance. The interface is in Chinese: “股票代码” is the stock symbol, “当前价格” is the current price, and “操作” is the actions column where a red “X” allows removing the stock.
+### 📡 Yahoo Finance Integration
+- Leverages **Yahoo Finance API (via yahoo-finance2)** for real-time **stock prices** and **historical candlestick data**.
+- Ensures **accurate market data** is displayed.
 
-Once subscribed, the stock will be listed in the Stocks table in the center of the page. A new row is added under the table header, showing the stock’s ticker under “Stock Code”, and the Current Price in the next column. The price is shown in green text, indicating it’s the latest value received. The server fetches this price at subscription time (and could update it continuously if the data stream provides updates). You can subscribe to multiple stocks one by one using the same process — just enter another ticker symbol and click Subscribe again.
+---
 
-The application supports tracking multiple stocks. Here, the user has added another stock (e.g., “SHOP” for Shopify). The table now includes a row for SHOP with its real-time price alongside the previously added TSLA. Each stock is listed with an “X” in the action column, which can be clicked to remove that stock from the list.
+## Technologies Used
 
-You will see each subscribed stock listed on its own row in the table. For example, after adding TSLA, you might add SHOP (Shopify) as a second symbol. The table will then show both TSLA and SHOP, each with their respective current prices. This list can grow as you add more stocks to track. The interface is designed to handle multiple entries, so you can monitor an entire watchlist of stocks simultaneously. If you wish to stop tracking a particular stock, click the red “X” button on that stock’s row under the Actions column. This will immediately remove the stock from the table on the client side. (The removal will not send further requests for that stock to the server.)
+| Technology | Description |
+|------------|------------|
+| **Node.js** | Backend framework to handle WebSocket connections and API requests |
+| **WebSocket (ws)** | Handles real-time communication between client and server |
+| **Yahoo Finance API** | Retrieves stock prices and historical data |
+| **HTML/CSS/JavaScript** | Front-end implementation with UI for user interactions |
+| **Chart.js** | Renders candlestick charts using historical stock data |
 
-Additional stocks can be subscribed in the same way. For instance, here the user added “PEP” (PepsiCo) to the tracker. The table now shows PEP’s current price as well. You can continue to add as many stock symbols as needed; each will appear with its latest price. In this state, the tracker is listing multiple subscribed stocks (TSLA, SHOP, PEP as examples). The red “X” next to each allows the user to remove that stock from the tracking list at any time.
+---
 
-2. Viewing Candlestick Charts: Below the stocks table, there is a section titled “股票K线图”, which translates to “Stock Candlestick Chart”. Initially, this area may be blank. To view the candlestick chart for a stock, first ensure the stock’s symbol is entered in the input field (you can click on an existing row to re-fill the input or type it in). Then click the View K-line Chart button (“查看K线图” in Chinese). This will send a request over the WebSocket for historical price data for the specified stock symbol.
+## Installation and Setup
 
-The candlestick chart displays historical price data for a selected stock. In this example, a candlestick chart is shown for one of the subscribed stocks over the past month. Each candlestick represents one day’s trading data: the green and red bars indicate days the stock price went up or down respectively (green for closing higher, red for closing lower). The chart’s x-axis shows the date and the y-axis shows the price range. This visual helps in analyzing recent stock performance at a glance.
+### 1️⃣ Clone or Download the Project
+```sh
+$ git clone https://github.com/your-repo/real-time-stock-tracker.git
+$ cd real-time-stock-tracker
+```
 
-After you request the candlestick chart, the chart area will populate with a candlestick chart for the chosen stock. By default, the tracker requests roughly one month of historical data (you might adjust the range in the code or extend this feature in the future). Each candle on the chart represents a time period (for example, one day) and shows the Open, High, Low, and Close prices for that period. A typical convention is used: a green (or hollow) candlestick indicates the stock’s price closed higher than it opened (an upward day), while a red (or filled) candlestick indicates the price closed lower than it opened (a downward day). The chart provides a quick visual insight into the stock’s recent performance and volatility. The x-axis of the chart is time (dates), and the y-axis is the price in the stock’s trading currency.
+### 2️⃣ Install Dependencies
+Ensure **Node.js** is installed, then run:
+```sh
+$ npm install
+```
 
-3. Removing Stocks: As mentioned, to remove a stock from the watchlist, simply click the “X” button in the Actions column for that stock’s row. The row will disappear from the table. (If the server were set up to push continuous updates, it would also stop sending updates for any stock that has been removed on the client side. In the current implementation, since updates are fetched on demand, removing a stock simply clears it from your view.) You can re-add the stock again later by subscribing to it anew if you wish.
+### 3️⃣ Start the WebSocket Server
+```sh
+$ node server.js
+```
+- This launches the **Node.js server on port 8080**.
+- The server listens for WebSocket connections and fetches stock data.
 
-Project Structure
+### 4️⃣ Open the Client Application
+- Open `index.html` in a browser.
+- You can also use **Live Server** (VS Code extension) to serve it at `http://127.0.0.1:5500/`.
 
-The project is organized into a front-end and a back-end component:
-	•	Front-End: The front-end consists of the static files index.html and client.js. The HTML file defines the user interface (input field, buttons, table, and chart canvas) and includes references to Chart.js and other necessary scripts. The client.js (if used) would contain JavaScript to handle user interactions and WebSocket events (in this project, the HTML file itself also contains some inline script for simplicity). The front-end is responsible for sending subscribe and chart requests to the server and updating the page with data (like adding new rows to the table or rendering the chart using Chart.js).
-	•	Back-End: The back-end is powered by Node.js, primarily in the server.js file. When you run server.js, it starts a WebSocket server on ws://localhost:8080. The server script listens for incoming messages from the client. There are two main types of actions it handles:
-	•	Subscribe Action: When the client sends a message to subscribe to stocks (for example { action: "subscribe", stocks: ["AAPL", "TSLA"] }), the server uses the Yahoo Finance API to fetch the current price for each requested stock symbol. It then immediately responds by sending back a message containing the real-time prices for those stocks. This allows the client to display the updated prices in the table.
-	•	Candlestick Action: When the client requests candlestick data (for example { action: "candlestick", symbol: "AAPL", range: "1mo" }), the server will fetch historical price data for that stock over the specified range (in this case, one month). It gathers the open, high, low, and close prices for each day in that range and sends this data back to the client in a structured format. The client will then call the chart rendering function to display this data visually.
-The server maintains a simple in-memory record of clients and their subscribed stocks (so it knows what to fetch if continuous updates were implemented). In this implementation, the server fetches data on-demand when requests come in. All server log messages and error messages are in Chinese (since the original developer wrote them in Chinese), which include confirmations for connections (e.g., “✅ 新用户连接” means a new user connected) and error notifications (e.g., “❌ 获取股票数据失败” means failed to retrieve stock data).
+---
 
-Usage Example
+## Usage
 
-To illustrate the usage flow, here’s an example scenario:
-	1.	You open the application and want to track Apple’s stock. You enter AAPL in the input and click Subscribe. The table adds a row “AAPL” and shows Apple’s current price (fetched from Yahoo Finance via the server).
-	2.	Next, you enter GOOGL (Alphabet’s stock) and click Subscribe. Now the table shows two rows: AAPL and GOOGL, each with their latest prices. Suppose Apple is at $150.00 and Google at $2800.00 (these are just examples).
-	3.	To see more details for Apple, you make sure “AAPL” is in the input field and click View K-line Chart. The candlestick chart area populates with Apple’s last month of trading data. You can observe days where the price went up (green candles) or down (red candles) and the range of prices each day.
-	4.	If you decide to stop tracking Google for now, you click the “X” next to GOOGL. The Google row is removed from the table (and you will no longer see its price updates). You continue monitoring AAPL, and perhaps add another symbol like TSLA to the list to get Tesla’s price as well.
+### 📈 Subscribing to Stock Quotes
+1. Enter the stock ticker symbol (e.g., `AAPL`, `TSLA`).
+2. Click the **Subscribe** button.
+3. The stock **appears in the table** with its latest price.
+4. **Multiple stocks** can be tracked simultaneously.
+5. Click the **red “X”** to remove a stock from tracking.
 
-Throughout this process, the front-end and back-end are communicating via WebSocket. Each subscribe or chart request you perform triggers the server to fetch data and respond instantly, making the experience interactive and real-time.
+### 📉 Viewing Candlestick Charts
+1. Click on a stock in the table or enter a symbol manually.
+2. Click the **View K-line Chart** button.
+3. A **candlestick chart** displays the stock’s **price history** for the past month.
 
-Conclusion
+### ❌ Removing Stocks
+- Click the **red “X”** next to a stock to **stop tracking it**.
+- The stock is **removed from the table** in real-time.
 
-The Real-Time Stock Tracker provides a basic but functional demonstration of real-time web technologies applied to stock monitoring. By combining a Node.js WebSocket server with a simple front-end interface, it achieves live communication of data. Users can easily get current stock prices for their chosen symbols and visualize recent price history without manual refreshes. The use of Chart.js for candlestick charts offers a quick way to gauge stock performance trends. This project can be extended in the future — for example, adding periodic updates to continuously refresh prices, supporting more historical data ranges, or improving the user interface.
+---
 
-Overall, this tool serves as an example of how real-time data and visualizations can be integrated into a web application, and it can be a foundation for building more advanced stock tracking dashboards or financial applications.
+## Project Structure
+
+![App Structure]（Assign1.png）
+
+### 📌 Front-End (Client)
+- **index.html**: User interface with **input fields, buttons, stock table, and chart**.
+- **client.js**:
+  - Manages **WebSocket connections**.
+  - Sends **subscribe requests** to the server.
+  - Updates the **stock table dynamically**.
+  - Renders **candlestick charts using Chart.js**.
+
+### 🖥️ Back-End (Server)
+- **server.js**:
+  - Listens for **WebSocket connections** on `ws://localhost:8080`.
+  - Handles **stock subscription requests**.
+  - Fetches **real-time prices and historical data** from Yahoo Finance.
+  - Sends data back to the client **instantly**.
+
+---
+
+## Example Workflow
+
+1️⃣ **User opens the app** and enters a stock symbol (`AAPL`), clicks **Subscribe**. The **table updates** with Apple’s real-time price.
+
+2️⃣ User enters another symbol (`TSLA`), clicks **Subscribe**. The table now shows both **AAPL** and **TSLA**.
+
+3️⃣ User clicks **View K-line Chart** for `AAPL`. A **candlestick chart** appears, showing the past **one month’s** stock history.
+
+4️⃣ User removes `TSLA` from tracking by clicking **red “X”**, and `TSLA` disappears from the table.
+
+---
+
+## Future Enhancements 🚀
+- **Continuous real-time price updates** (via WebSocket push instead of polling).
+- **Database integration** to store user subscriptions.
+- **Extended historical data ranges** for candlestick charts.
+- **User authentication** to save watchlists.
+
+---
+
+## Conclusion
+The **Real-Time Stock Tracker** is a demonstration of **real-time WebSockets, financial data visualization, and interactive stock monitoring**. Users can subscribe to live prices, view **K-line charts**, and manage their watchlist seamlessly.
+
+✅ **Real-time WebSocket updates**
+✅ **Yahoo Finance integration**
+✅ **Dynamic stock tracking UI**
+✅ **Interactive candlestick charts**
+
+This project can serve as a **foundation for building advanced stock tracking applications**.
+
+---
+
+## License
+MIT License © 2025 Your Name
+
+---
+
+## Contact
+For any questions or improvements, feel free to reach out!
+
+✉️ Email: `your-email@example.com`
+🔗 GitHub: [Your GitHub Profile](https://github.com/your-username)
+
